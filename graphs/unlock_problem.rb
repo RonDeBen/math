@@ -163,9 +163,15 @@ class Hypercube
 			find_trail(i, @possible_bridges, 0, [], max_length)
 		end
 
-		@possible_shapes[max_length].each do |k, v|
-			v.uniq
-		end
+		@possible_shapes[max_length].each { |k, v| @possible_shapes[max_length][k] = v.uniq }
+
+		# @possible_shapes[max_length].each do |k, v|
+		# 	@possibles_shapes[max_length][k] = v.uniq
+		# end
+	end
+
+	def remove_duplicates(array)
+
 	end
 
 	def find_trail(current_node_number, bridges_array, number_of_bridges_crossed, path_taken, max_trail_length)
@@ -174,9 +180,9 @@ class Hypercube
 
 			valence = get_valence_from_unused_bridges(bridges_array)
 			if(@possible_shapes[max_trail_length][valence] == nil)#this valence has not been discovered yet
-				@possible_shapes[max_trail_length][valence] = [path_taken]
+				@possible_shapes[max_trail_length][valence] = [path_taken.sort]
 			else
-				@possible_shapes[max_trail_length][valence] << path_taken
+				@possible_shapes[max_trail_length][valence] << path_taken.sort
 			end
 			return nil
 		end
@@ -190,7 +196,8 @@ class Hypercube
 
 			new_path_taken = path_taken + [(@primes[current_node_number]*@primes[this_way])]
 
-			bridges_left = Array.new(bridges_array)
+			# bridges_left = Array.new(bridges_array)
+			bridges_left = bridges_array.dup
 			bridges_left[current_node_number] -= [this_way]
 			bridges_left[this_way] -= [current_node_number]
 
