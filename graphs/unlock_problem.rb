@@ -3,6 +3,7 @@ class Hypercube
 	require 'facets'
 
 	def initialize(dimension, edge_nodes)
+
 		@dimension = dimension
 		@n = edge_nodes
 		@number_of_nodes = edge_nodes ** dimension
@@ -149,15 +150,21 @@ class Hypercube
 	end
 
 	def find_all_trails
+		start_time = Time.now
 		(1..@longest_path).each do |i|
 			find_trails_of_length(i)
-			puts "There are #{@possible_shapes[i].length} possible trails of length #{i}"
+			end_time = Time.now
+			puts "There are #{@possible_shapes[i].length} possible trails of length #{i} found in #{(end_time - start_time)} seconds"
 		end
 	end
 
 	def find_trails_of_length(max_length)
 		@number_of_nodes.times do |i|
 			find_trail(i, @possible_bridges, 0, [], max_length)
+		end
+
+		@possible_shapes[max_length].each do |k, v|
+			v.uniq
 		end
 	end
 
@@ -169,19 +176,8 @@ class Hypercube
 			if(@possible_shapes[max_trail_length][valence] == nil)#this valence has not been discovered yet
 				@possible_shapes[max_trail_length][valence] = [path_taken]
 			else
-				is_new_solution = true
-				@possible_shapes[max_trail_length].each do |valence, solutions|
-					solutions.each do |solution|
-						if(path_taken.frequency == solution.frequency)
-							is_new_solution = false
-						end
-					end
-				end
-				if(is_new_solution)
-					@possible_shapes[max_trail_length][valence] << path_taken
-				end
+				@possible_shapes[max_trail_length][valence] << path_taken
 			end
-
 			return nil
 		end
 
