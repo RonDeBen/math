@@ -23,7 +23,7 @@ class Hypercube
 
 		find_all_trails
 
-		@most_complicated_shapes = most_complicated_shapes
+		@most_complicated_shapes = find_most_complicated_shapes
 	end
 
 	def possible_shapes
@@ -152,31 +152,30 @@ class Hypercube
 	def find_all_trails
 		start_time = Time.now
 		(1..@longest_path).each do |i|
+		# (@number_of_nodes..@longest_path).each do |i|
 			find_trails_of_length(i)
 			end_time = Time.now
-			puts "There are #{@possible_shapes[i].length} possible trails of length #{i} found in #{(end_time - start_time)} seconds"
+			if(@possible_shapes[i].length == 1)
+				puts "There are #{@possible_shapes[i].length} possible trails of length #{i} found in #{(end_time - start_time)} seconds"
+			else
+				puts "There are #{@possible_shapes[i].length} possible trails of length #{i} found in #{(end_time - start_time)} seconds"
+			end
+			start_time = end_time
 		end
 	end
 
 	def find_trails_of_length(max_length)
-		@number_of_nodes.times do |i|
-			find_trail(i, @possible_bridges, 0, [], max_length)
-		end
+		i = 0
+		# @number_of_nodes.times do |i|
+		find_trail(i, @possible_bridges, 0, [], max_length)
+		# end
 
 		@possible_shapes[max_length].each { |k, v| @possible_shapes[max_length][k] = v.uniq }
-
-		# @possible_shapes[max_length].each do |k, v|
-		# 	@possibles_shapes[max_length][k] = v.uniq
-		# end
-	end
-
-	def remove_duplicates(array)
-
 	end
 
 	def find_trail(current_node_number, bridges_array, number_of_bridges_crossed, path_taken, max_trail_length)
 
-		if(number_of_bridges_crossed >= max_trail_length)
+		if(number_of_bridges_crossed == max_trail_length)
 
 			valence = get_valence_from_unused_bridges(bridges_array)
 			if(@possible_shapes[max_trail_length][valence] == nil)#this valence has not been discovered yet
@@ -213,10 +212,10 @@ class Hypercube
 		return valence
 	end
 
-	def most_complicated_shapes
+	def find_most_complicated_shapes
 		max_complexity = 0
 		max_length = 0
-		most_complicated_shapes = []
+		most_complicated_shapes = {}
 		@possible_shapes.each_with_index do |shape, length|
 			if(shape != nil)
 				shape.each do |valence, solutions|
@@ -224,28 +223,22 @@ class Hypercube
 					if(complexity > max_complexity)
 						max_complexity = complexity 
 						max_length = length
-						most_complicated_shapes = []
-						most_complicated_shapes << shape
+						most_complicated_shapes = {}
+						most_complicated_shapes[valence] = solutions
+					elsif (complexity == max_complexity) 
+						most_complicated_shapes[valence] = solutions 
 					end
-					most_complicated_shapes << shape if(complexity == max_complexity)
 				end
 			end
 		end
-		puts "Most complicated shape:There are #{most_complicated_shapes.length} shapes of length #{max_length} that require #{max_complexity} moves to solve"
+		if(most_complicated_shapes.length == 1)
+			puts "There is #{most_complicated_shapes.length} shape of length #{max_length} that require #{max_complexity} moves to solve"
+		else
+			puts "There are #{most_complicated_shapes.length} shapes of length #{max_length} that require #{max_complexity} moves to solve"
+		end
 		@most_complicated_shapes = most_complicated_shapes
 	end
 
-	# def pass_array_by_value(hash1, hash2)
-	# 	hash2.length.times do |why_do_i_have_to_do_this|
-	# 		hash1[why_do_i_have_to_do_this] = []
-	# 	end
-
-	# 	hash2.length.times do |k|
-	# 		hash2[k].each do |cocks|
-	# 			hash1[k] << cocks
-	# 		end
-	# 	end
-	# end
 end
 
 class Integer
