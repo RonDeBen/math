@@ -8,21 +8,45 @@ class Hypercube
 		@n = edge_nodes
 		@number_of_nodes = edge_nodes ** dimension
 		@number_of_bridges = number_of_bridges
-		@longest_path = longest_path
+		@longest_trail = longest_trail
+		# @primes = Prime.first(@number_of_nodes)
+		# @possible_bridges = []
+		# @default_valence = []
+
+		# @possible_shapes = []
+
+		# @threads = Array.new((@longest_trail + 1), true)`
+		# p @threads
+
+		# (1..@longest_trail).each do |i|
+		# 	@possible_shapes[i] = {}
+		# end
+
+		# build_bridges
+
+		# find_all_trails
+
+		# until (@threads.all? == false)
+		# 	sleep(1)
+		# end
+
+		# @most_complicated_shapes = find_most_complicated_shapes
+		# p @threads
+
+	end
+
+	def solve
 		@primes = Prime.first(@number_of_nodes)
 		@possible_bridges = []
 		@default_valence = []
-
 		@possible_shapes = []
 
-		(1..@longest_path).each do |i|
+		(1..@longest_trail).each do |i|
 			@possible_shapes[i] = {}
 		end
 
 		build_bridges
-
 		find_all_trails
-
 		@most_complicated_shapes = find_most_complicated_shapes
 	end
 
@@ -31,7 +55,7 @@ class Hypercube
 	end
 
 	def number_of_bridges
-		triangle = what_the_fuck_triangle
+		triangle = magic_triangle
 		adjacencies = {}
 		0.upto(@dimension) do |k|
 			a_k = @dimension.choose(k)
@@ -53,7 +77,7 @@ class Hypercube
 		sum / 2
 	end
 
-	def what_the_fuck_triangle
+	def magic_triangle
 		hypotenuse = []
 		(@dimension+1).times do |k|
 			hypotenuse << 3 ** k
@@ -76,7 +100,7 @@ class Hypercube
 		antidiagonal
 	end
 
-	def longest_path
+	def longest_trail
 		even_nodes = (@n-2) ** @dimension
 		odd_nodes = @number_of_nodes - even_nodes
 		return @number_of_bridges - (odd_nodes - 2) / 2
@@ -151,8 +175,7 @@ class Hypercube
 
 	def find_all_trails
 		start_time = Time.now
-		(1..@longest_path).each do |i|
-		# (@number_of_nodes..@longest_path).each do |i|
+		(1..@longest_trail).each do |i|
 			find_trails_of_length(i)
 			end_time = Time.now
 			if(@possible_shapes[i].length == 1)
@@ -160,16 +183,14 @@ class Hypercube
 			else
 				puts "There are #{@possible_shapes[i].length} possible trails of length #{i} found in #{(end_time - start_time)} seconds"
 			end
-			start_time = end_time
 		end
 	end
 
 	def find_trails_of_length(max_length)
-		i = 0
-		# @number_of_nodes.times do |i|
-		find_trail(i, @possible_bridges, 0, [], max_length)
-		# end
-
+		threads = []
+		@number_of_nodes.times do |i|
+			find_trail(i, @possible_bridges, 0, [], max_length)
+		end
 		@possible_shapes[max_length].each { |k, v| @possible_shapes[max_length][k] = v.uniq }
 	end
 
@@ -195,7 +216,6 @@ class Hypercube
 
 			new_path_taken = path_taken + [(@primes[current_node_number]*@primes[this_way])]
 
-			# bridges_left = Array.new(bridges_array)
 			bridges_left = bridges_array.dup
 			bridges_left[current_node_number] -= [this_way]
 			bridges_left[this_way] -= [current_node_number]
@@ -232,9 +252,9 @@ class Hypercube
 			end
 		end
 		if(most_complicated_shapes.length == 1)
-			puts "There is #{most_complicated_shapes.length} shape of length #{max_length} that require #{max_complexity} moves to solve"
+			puts "There is #{most_complicated_shapes.length} shape of length #{max_length} that requires #{max_complexity} moves to solve"
 		else
-			puts "There are #{most_complicated_shapes.length} shapes of length #{max_length} that require #{max_complexity} moves to solve"
+			puts "There are #{most_complicated_shapes.length} shapes of length #{max_length} that requires #{max_complexity} moves to solve"
 		end
 		@most_complicated_shapes = most_complicated_shapes
 	end
